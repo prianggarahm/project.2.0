@@ -25,6 +25,18 @@ router.get("/", async (req, res, next) => {
   });
 });
 
+// GET DATA BY ID
+router.get("/:id", async (req, res, next) => {
+  const id = req.params.id;
+  // check id in table note db
+  let note = await Notes.findByPk(id);
+  if (!note) {
+    return res.status(404).json({ status: 404, message: "Data not found" });
+  } else {
+    return res.json({ status: 200, message: "Success get data", data: notes });
+  }
+});
+
 // POST
 router.post("/", async (req, res, next) => {
   // validasi
@@ -68,6 +80,23 @@ router.put("/:id", async (req, res, next) => {
     status: 200,
     message: "Success update data",
     data: note,
+  });
+});
+
+// DELETE
+router.delete("/:id", async (req, res, next) => {
+  const id = req.params.id;
+  // check id in table note
+  let note = await Notes.findByPk(id);
+  if (!note) {
+    return res.status(404).json({ status: 404, message: "Data not found" });
+  }
+
+  // proses delete data
+  await note.destroy();
+  res.json({
+    status: 200,
+    message: "Success delete data",
   });
 });
 
