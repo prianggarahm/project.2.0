@@ -5,13 +5,24 @@ const v = new Validator();
 const { Notes } = require("../models");
 
 /* GET notes page. */
-router.get("/", function (req, res, next) {
-  res.send("Hello tested again");
-});
+// router.get("/", function (req, res, next) {
+//   res.send("Hello tested again");
+// });
 
 // COPY
-router.get("/env", function (req, res, next) {
-  res.send(process.env.APP_NAME);
+// router.get("/env", function (req, res, next) {
+//   res.send(process.env.APP_NAME);
+// });
+
+// GET
+// all data
+router.get("/", async (req, res, next) => {
+  const notes = await Notes.findAll();
+  return res.json({
+    status: 200,
+    message: "Success get all data",
+    data: notes,
+  });
 });
 
 // POST
@@ -30,6 +41,32 @@ router.post("/", async (req, res, next) => {
   res.json({
     status: 200,
     message: "Success create data",
+    data: note,
+  });
+});
+
+// PUT
+router.put("/:id", async (req, res, next) => {
+  const id = req.params.id;
+  let note = await Notes.findByPk(id);
+  // misal id tidak ditemukan
+  if (!note) {
+    return res.status(404).json({ status: 404, message: "Data not found" });
+  }
+  // validasi
+  const schema = {
+    title: "string|optional",
+    description: "string|optional",
+  };
+  const validate = v.validate(req.body, schema);
+  if (validate.length) {
+    return res.status(400).json(validate);
+  }
+  // proses update
+  note = await note.update(req.body);
+  res.json({
+    status: 200,
+    message: "Success update data",
     data: note,
   });
 });
